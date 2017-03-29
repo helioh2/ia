@@ -199,21 +199,39 @@ MATRIZ_TAREFA       = [[8, 3, B, 1, B, B, 6, B, 5],
                     [B, 9, B, B, B, B, B, B, B],
                     [3, B, 2, B, B, 6, B, 4, 7]]
 
+
+MATRIZ_TAREFA_RESOLVIDO       = [[8, 3, 7, 1, 9, 4, 6, 2, 5],
+                                [5, 4, 9, 6, 2, 3, 7, 8, 1],
+                                [6, 2, 1, 7, 8, 5, 9, 3, 4],
+                                [2, 5, 6, 8, 1, 7, 4, 9, 3],
+                                [4, 1, 3, 5, 6, 9, 2, 7, 8],
+                                [9, 7, 8, 3, 4, 2, 5, 1, 6],
+                                [1, 6, 4, 2, 7, 8, 3, 5, 9],
+                                [7, 9, 5, 4, 3, 1, 8, 6, 2],
+                                [3, 8, 2, 9, 5, 6, 1, 4, 7]]
+
 import copy
 import random
 class Tabuleiro:
     
-    def __init__(self, matriz, fitness=0, preenchidos = None, calcPreenchidos=False):
+    def __init__(self, matriz, fitness=0, preenchidos = None, calcPreenchidos=False, resolvido = None):
         self.matriz = matriz
         self.fitness = fitness
         if calcPreenchidos:
             self.preenchidos = indicesPreenchidos(self.matriz)
         else:
             self.preenchidos = preenchidos
+        self.resolvido = resolvido
+        
     
     def flip(self, lin, col):
         n = self.matriz[lin][col]
-        n = (n+1)%9
+        n = (n+1)%9 + 1
+        self.matriz[lin][col] = n
+        
+    def unflip(self, lin, col):
+        n = self.matriz[lin][col]
+        n = (n-1)%9 + 1
         self.matriz[lin][col] = n
         
     def isNone(self,lin,col):
@@ -221,17 +239,16 @@ class Tabuleiro:
     
     def clone(self):
         return Tabuleiro(copy.deepcopy(self), \
-                         preenchidos = self.preenchidos)
+                         preenchidos = self.preenchidos, resolvido = self.resolvido)
         
     def countInvalidos(self):
    
         count = 0
         for unidade in UNIDADES:
-            valores = [self.matriz[pos[0]][pos[1]] for pos in unidade]
+            valores = [self.matriz[lin][col] for lin,col in unidade]
             for valor in valores:
                 if valores.count(valor) > 1:
                     count += 1
-        self.fitness = count
         return count
     
     def estahResolvido(self):
@@ -241,10 +258,10 @@ class Tabuleiro:
         '''
         for lin in range(9):
             for col in range(9):
-                if self.isNone(lin,col):
+                if self.matriz[lin][col] != self.resolvido[lin][col]:
                     return False
         return True
-
+                
 
     def preencheAleatorio(self):
         novoTab = self.clone()
@@ -252,11 +269,17 @@ class Tabuleiro:
             for col in range(9):
                 if not (lin,col) in self.preenchidos:                   
                     novoTab[lin][col] = random.randrange(1,10)
-        novoTab.countInvalidos()
+        novoTab.setFitness(novoTab.countInvalidos())       
         return novoTab
     
     def printthis(self):
         print_matriz(self.matriz)
+        
+    def getFitness(self):
+        return self.fitness
+    
+    def setFitness(self, fitness):
+        self.fitness = fitness
     
     def __lt__(self,outro):
         return self.fitness < outro.fitness
@@ -274,6 +297,6 @@ class Tabuleiro:
     def __len__(self):
         return len(self.matriz)
     
-TAB_TAREFA = Tabuleiro(MATRIZ_TAREFA, calcPreenchidos=True)
+TAB_TAREFA = Tabuleiro(MATRIZ_TAREFA, calcPreenchidos=True, resolvido=MATRIZ_TAREFA_RESOLVIDO)
 print(TAB_TAREFA.preenchidos)             
 
