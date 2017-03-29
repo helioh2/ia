@@ -5,7 +5,7 @@ Created on 28 de mar de 2017
 '''
 import unittest
 
-from aestrelaiter import *
+from aestrela.aestrelaiter import *
 
 class Test(unittest.TestCase):
 

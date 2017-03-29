@@ -1,5 +1,7 @@
 eclipse.preferences.version=1
-encoding/aestrela-fila.py=utf-8
-encoding/aestrela.py=utf-8
-encoding/aestrelaiter.py=utf-8
-encoding/slidingpuzzle.py=utf-8
+encoding//aestrela/aestrela-fila.py=utf-8
+encoding//aestrela/aestrela.py=utf-8
+encoding//aestrela/aestrelaiter.py=utf-8
+encoding//aestrela/slidingpuzzle.py=utf-8
+encoding//sudoku/dados.py=utf-8
+encoding//sudoku/solver.py=utf-8
