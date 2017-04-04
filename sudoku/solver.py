@@ -7,7 +7,7 @@ import random
 from Queue import Queue
 import threading
 
-TENTATIVAS = 200000
+TENTATIVAS = 5000
 
 class FilaPrioridadeLimitada():
     
@@ -15,12 +15,13 @@ class FilaPrioridadeLimitada():
         self.queue = []
         self.mutex = threading.Lock()
         self.maxsize = maxsize
-        self.len = 0
+        
 
 
     def put(self, item):
         self.mutex.acquire()
-        self.queue = self.queue[:-1]
+        if len(self.queue) == self.maxsize:
+            self.queue = self.queue[:-1]
         
                     #         if len(self.queue) == self.maxsize:
         #             last = self._queue.pop()
@@ -29,14 +30,12 @@ class FilaPrioridadeLimitada():
         # #                 return
         
         bisect.insort(self.queue, item)
-        self.len+=1
         self.mutex.release()
         
     
     def get(self):
         self.mutex.acquire()
         item = self.queue.pop(0)
-        self.len-=1
         self.mutex.release()
         return item
     
@@ -48,7 +47,7 @@ class FilaPrioridadeLimitada():
             
     def last(self):
         self.mutex.acquire()
-        last = self.queue[self.len-1]
+        last = self.queue[-1]
         self.mutex.release()
         return last
     
@@ -61,37 +60,54 @@ class Solver:
         self.vizinhos = FilaPrioridadeLimitada(k)
         self.tabInicial = tabInicial
         self.k = k
-        
+        self.visitados = []
+        self.countErrors = 0
     
-    def proximos_vizinhos_fliptodos(self, tab):
+    def checkVisitados(self, tab, lin, col):
+        
+        if tab in self.visitados:
+            tab.unflip(lin,col)
+            return False
+        return True
+    
+    def dontCheckVisitados(self, tab, lin, col):
+        return True 
+    
+    def tryByFlip(self, tab, lin, col, vizinhosAtuais, checkVisitados = checkVisitados):
+        tab.flip(lin,col)
+        if not checkVisitados(self,tab,lin,col):
+            return
+        fitness = tab.countInvalidos()                   
+        try:
+            if fitness < vizinhosAtuais[-1].getFitness():                       
+                novoTab = tab.clone()
+                novoTab.setFitness(fitness)
+                self.vizinhos.put(novoTab)
+                self.visitados.append(novoTab)
+        except IndexError: 
+            self.countErrors += 1
+            print("erro")
+        finally:
+            tab.unflip(lin,col)
+            
+    
+    
+    def proximos_vizinhos_fliptodos(self, tab, vizinhosAtuais):
            
         for lin in range(9):
             for col in range(9):
                 if (lin,col) not in tab.preenchidos:
-                    tab.flip(lin,col)
-                    fitness = tab.countInvalidos()
-                    if fitness < self.vizinhos.last().getFitness():                       
-                        novoTab = tab.clone()
-                        novoTab.setFitness(fitness)
-                        self.vizinhos.removeLast()
-                        self.vizinhos.put(novoTab)
-                    tab.unflip(lin,col)
+                    self.tryByFlip(tab, lin, col, vizinhosAtuais)
 
 
-    def proximos_vizinhos_flip_um_por_linha_random(self,tab):
+    def proximos_vizinhos_flip_um_por_linha_random(self,tab, vizinhosAtuais):
         for lin in range(9):
             
             col = random.randrange(0,9)
             while (lin,col) in tab.preenchidos:
                 col = random.randrange(0,9)
 
-            tab.flip(lin,col)
-            fitness = tab.countInvalidos()
-            if fitness < self.vizinhos.last().getFitness():                       
-                novoTab = tab.clone()
-                novoTab.setFitness(fitness)
-                self.vizinhos.put(novoTab)
-            tab.unflip(lin,col)
+            self.tryByFlip(tab, lin, col, vizinhosAtuais)
             
             
     def proximos_vizinhos_flip_total_random(self,tab,vizinhosAtuais):     
@@ -115,10 +131,11 @@ class Solver:
             tab[lin][col] = anterior
 
 
-    def resolver_sudoku(self, metodoVizinhos):
+    def resolver_sudoku_paralelo(self, metodoVizinhos):
         for i in range(self.k):
             estadoInicial = self.tabInicial.preencheAleatorio()
             self.vizinhos.put(estadoInicial)
+            self.visitados.append(estadoInicial)
         
         tentativas = 0
         while True:
@@ -131,9 +148,31 @@ class Solver:
             vizinhosAtuais = self.vizinhos.getAll()
 
             for v in vizinhosAtuais:
-                t = threading.Thread(target=self.proximos_vizinhos_flip_total_random, kwargs = {"tab":v, "vizinhosAtuais":vizinhosAtuais} )
+                t = threading.Thread(target=metodoVizinhos, kwargs = {"tab":v, "vizinhosAtuais":vizinhosAtuais} )
                 t.daemon = True
                 t.start()
+            
+            tentativas += 1
+            print(tentativas)
+            
+    def resolver_sudoku_sequencial(self, metodoVizinhos):
+        for i in range(self.k):
+            estadoInicial = self.tabInicial.preencheAleatorio()
+            self.vizinhos.put(estadoInicial)
+            self.visitados.append(estadoInicial)
+        
+        tentativas = 0
+        while True:
+            
+            melhor = self.vizinhos.get()
+            if melhor.estahResolvido() or tentativas == TENTATIVAS:
+                return melhor
+            self.vizinhos.put(melhor)
+            
+            vizinhosAtuais = self.vizinhos.getAll()
+
+            for v in vizinhosAtuais:
+                metodoVizinhos(v, vizinhosAtuais)
             
             tentativas += 1
             print(tentativas)
@@ -152,7 +191,7 @@ class Solver:
 # t_final = time.time()
 # print "Tempo de execução =", t_final - t_inicial
 
-solver = Solver(TAB_TAREFA,1000)
-solucao = solver.resolver_sudoku(solver.proximos_vizinhos_flip_um_por_linha_random)
+solver = Solver(TAB_TAREFA,50)
+solucao = solver.resolver_sudoku_paralelo(solver.proximos_vizinhos_fliptodos)
 solucao.printthis()
 print(solucao.fitness)

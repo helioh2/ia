@@ -226,19 +226,19 @@ class Tabuleiro:
     
     def flip(self, lin, col):
         n = self.matriz[lin][col]
-        n = (n+1)%9 + 1
+        n = (n+1) if n+1 != 10 else 1
         self.matriz[lin][col] = n
         
     def unflip(self, lin, col):
         n = self.matriz[lin][col]
-        n = (n-1)%9 + 1
+        n = (n-1) if n-1 != 0 else 9
         self.matriz[lin][col] = n
         
     def isNone(self,lin,col):
         return self.matriz[lin][col] is None
     
     def clone(self):
-        return Tabuleiro(copy.deepcopy(self), \
+        return Tabuleiro(copy.deepcopy(self.matriz), \
                          preenchidos = self.preenchidos, resolvido = self.resolvido)
         
     def countInvalidos(self):
@@ -288,8 +288,7 @@ class Tabuleiro:
         # quando usar comparacao de igual, comparar pelo tab
         if isinstance(outro, Tabuleiro):
             return self.matriz == outro.matriz
-        else:
-            return outro == self
+        
     
     def __getitem__(self,lin):
         return self.matriz[lin]
