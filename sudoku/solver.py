@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from sudoku.dados import *
-import time
 import bisect
-import random
-from Queue import Queue
 import threading
 
-TENTATIVAS = 2000
+TENTATIVAS = 5000
 
 class Node :
     def __init__( self, data ) :
@@ -65,6 +62,7 @@ class Solver:
         self.k = k
         self.visitados = []
         self.countErrors = 0
+#         self.temperatura = 
     
     def checkVisitados(self, tab, lin, col):
 
@@ -132,16 +130,28 @@ class Solver:
         randomnum = random.randrange(1,10)
         anterior = tab[lin][col]
         tab[lin][col] = randomnum
-        fitness = tab.countInvalidos()
+        
         try:
+            if tab.matriz in self.visitados:
+                tab[lin][col] = anterior
+                return
+        
+            fitness = tab.countInvalidos()
+            
             if fitness < vizinhosAtuais[-1].getFitness():                       
                 novoTab = tab.clone()
                 novoTab.setFitness(fitness)
                 self.vizinhos.put(novoTab)
+                self.visitados.append(copy.deepcopy(novoTab.matriz))
+                
         #except IndexError: print("erro")
         finally:
             tab[lin][col] = anterior
 
+
+    def proximo_vizinhos_random_9(self,tab, vizinhosAtuais):
+        for i in range(9):
+            self.proximos_vizinhos_total_random(tab, vizinhosAtuais)
 
     def resolver_sudoku_paralelo(self, metodoVizinhos):
         for i in range(self.k):
@@ -207,6 +217,6 @@ class Solver:
 # print "Tempo de execução =", t_final - t_inicial
 
 solver = Solver(TAB_TAREFA,100)
-solucao = solver.resolver_sudoku_paralelo(solver.proximos_vizinhos_flip_um_por_linha_random)
+solucao = solver.resolver_sudoku_paralelo(solver.proximo_vizinhos_random_9  )
 solucao.printthis()
 print(solucao.fitness)
