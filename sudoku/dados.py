@@ -280,6 +280,7 @@ class Tabuleiro:
     
     def setFitness(self, fitness):
         self.fitness = fitness
+
     
     def __lt__(self,outro):
         return self.fitness < outro.fitness
@@ -287,7 +288,12 @@ class Tabuleiro:
     def __eq__(self, outro):
         # quando usar comparacao de igual, comparar pelo tab
         if isinstance(outro, Tabuleiro):
-            return self.matriz == outro.matriz
+            for lin in range(9):
+                for col in range(9):
+                    if self.matriz[lin][col] != outro.matriz[lin][col]:
+                        return False
+            return True
+        return False        
         
     
     def __getitem__(self,lin):

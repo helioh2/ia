@@ -7,7 +7,16 @@ import random
 from Queue import Queue
 import threading
 
-TENTATIVAS = 5000
+TENTATIVAS = 2000
+
+class Node :
+    def __init__( self, data ) :
+        self.data = data
+        self.next = None
+        self.prev = None
+
+
+
 
 class FilaPrioridadeLimitada():
     
@@ -22,13 +31,7 @@ class FilaPrioridadeLimitada():
         self.mutex.acquire()
         if len(self.queue) == self.maxsize:
             self.queue = self.queue[:-1]
-        
-                    #         if len(self.queue) == self.maxsize:
-        #             last = self._queue.pop()
-        # #             if last < item:
-        # #                 self.queue.append(last)
-        # #                 return
-        
+     
         bisect.insort(self.queue, item)
         self.mutex.release()
         
@@ -64,8 +67,8 @@ class Solver:
         self.countErrors = 0
     
     def checkVisitados(self, tab, lin, col):
-        
-        if tab in self.visitados:
+
+        if tab.matriz in self.visitados:
             tab.unflip(lin,col)
             return False
         return True
@@ -83,7 +86,7 @@ class Solver:
                 novoTab = tab.clone()
                 novoTab.setFitness(fitness)
                 self.vizinhos.put(novoTab)
-                self.visitados.append(novoTab)
+                self.visitados.append(copy.deepcopy(novoTab.matriz))
         except IndexError: 
             self.countErrors += 1
             print("erro")
@@ -108,9 +111,18 @@ class Solver:
                 col = random.randrange(0,9)
 
             self.tryByFlip(tab, lin, col, vizinhosAtuais)
+    
+    def proximos_vizinhos_flip_random(self,tab,vizinhosAtuais):     
             
+        #for i in range(9):
+        lin,col = (random.randrange(0,9),random.randrange(0,9))
+        while (lin,col) in tab.preenchidos:
+            col = random.randrange(0,9)
             
-    def proximos_vizinhos_flip_total_random(self,tab,vizinhosAtuais):     
+        self.tryByFlip(tab, lin, col, vizinhosAtuais)
+        
+    
+    def proximos_vizinhos_total_random(self,tab,vizinhosAtuais):     
             
         #for i in range(9):
         lin,col = (random.randrange(0,9),random.randrange(0,9))
@@ -144,6 +156,7 @@ class Solver:
             if melhor.estahResolvido() or tentativas == TENTATIVAS:
                 return melhor
             self.vizinhos.put(melhor)
+            print(melhor.getFitness())
             
             vizinhosAtuais = self.vizinhos.getAll()
 
@@ -159,7 +172,7 @@ class Solver:
         for i in range(self.k):
             estadoInicial = self.tabInicial.preencheAleatorio()
             self.vizinhos.put(estadoInicial)
-            self.visitados.append(estadoInicial)
+            self.visitados.append(copy.deepcopy(estadoInicial.matriz))
         
         tentativas = 0
         while True:
@@ -168,6 +181,7 @@ class Solver:
             if melhor.estahResolvido() or tentativas == TENTATIVAS:
                 return melhor
             self.vizinhos.put(melhor)
+            print(melhor.getFitness())
             
             vizinhosAtuais = self.vizinhos.getAll()
 
@@ -176,6 +190,7 @@ class Solver:
             
             tentativas += 1
             print(tentativas)
+            
             
                 
         
@@ -191,7 +206,7 @@ class Solver:
 # t_final = time.time()
 # print "Tempo de execução =", t_final - t_inicial
 
-solver = Solver(TAB_TAREFA,50)
-solucao = solver.resolver_sudoku_paralelo(solver.proximos_vizinhos_fliptodos)
+solver = Solver(TAB_TAREFA,100)
+solucao = solver.resolver_sudoku_paralelo(solver.proximos_vizinhos_flip_um_por_linha_random)
 solucao.printthis()
 print(solucao.fitness)
