@@ -251,16 +251,20 @@ class Tabuleiro:
                     count += 1
         return count
     
+    def isInvalido(self):
+        for unidade in UNIDADES:
+            valores = [self.matriz[lin][col] for lin,col in unidade if self.matriz[lin][col] != None]
+            for valor in valores:
+                if valores.count(valor) > 1:
+                    return True
+        return False
+    
     def estahResolvido(self):
         '''
         :param tab: Tabuleiro
         :return: Boolean
         '''
-        for lin in range(9):
-            for col in range(9):
-                if self.matriz[lin][col] != self.resolvido[lin][col]:
-                    return False
-        return True
+        return not self.primeiroVazio() and not self.isInvalido()
                 
 
     def preencheAleatorio(self):
@@ -271,6 +275,44 @@ class Tabuleiro:
                     novoTab[lin][col] = random.randrange(1,10)
         novoTab.setFitness(novoTab.countInvalidos())       
         return novoTab
+    
+    
+    def primeiroVazio(self):
+        for lin in range(9):
+            for col in range(9):
+                if not self.matriz[lin][col]:
+                    return lin,col
+        return False
+                   
+    
+    def preencheProximo(self, n):
+        
+        (lin,col) = self.primeiroVazio()          
+        self.matriz[lin][col] = n%9 + 1
+        if not self.isInvalido():
+            novoTab = self.clone()
+            self.matriz[lin][col] = None
+            return novoTab
+        self.matriz[lin][col] = None
+        
+    def preencheAlgumEmBranco(self, n):    
+        (lin,col) = random.randrange(9), random.randrange(9)
+        while self.matriz[lin][col] != None:
+            (lin,col) = random.randrange(9), random.randrange(9)
+        self.matriz[lin][col] = n%9 + 1
+        if not self.isInvalido():
+            novoTab = self.clone()
+            self.matriz[lin][col] = None
+            return novoTab
+        self.matriz[lin][col] = None
+    
+    def contPreenchidos(self):
+        cont = 0
+        for lin in range(9):
+            for col in range(9):
+                if self.matriz[lin][col] != None:
+                    cont += 1
+        return cont
     
     def printthis(self):
         print_matriz(self.matriz)
