@@ -22,6 +22,10 @@ class FilaPrioridadeLimitada():
         self.mutex = threading.Lock()
         self.maxsize = maxsize
         
+    
+    def __len__(self):
+        return len(self.queue)
+        
 
 
     def put(self, item):
@@ -51,6 +55,24 @@ class FilaPrioridadeLimitada():
         self.mutex.release()
         return last
     
+    def removeLast(self):
+        
+      
+        self.mutex.acquire()
+        self.queue = self.queue[:-1]
+        self.mutex.release()
+        
+    def removeRandom(self):
+        
+        self.mutex.acquire()
+        value = self.queue[random.randrange(len(self.queue))]
+        self.queue.remove(value)
+        self.mutex.release()
+        
+    def __iter__(self):
+        return self.queue.__iter__()
+        
+    
     
     
 
@@ -62,6 +84,7 @@ class Solver:
         self.k = k
         self.visitados = []
         self.countErrors = 0
+        self.tentativas = 0
 #         self.temperatura = 
     
     def checkVisitados(self, tab, lin, col):
@@ -132,17 +155,29 @@ class Solver:
         tab[lin][col] = randomnum
         
         try:
-            if tab.matriz in self.visitados:
-                tab[lin][col] = anterior
-                return
+#             if tab.matriz in self.visitados:
+#                 tab[lin][col] = anterior
+#                 return
         
             fitness = tab.countInvalidos()
             
-            if fitness < vizinhosAtuais[-1].getFitness():                       
+            if fitness < vizinhosAtuais[-1].getFitness():                     
                 novoTab = tab.clone()
                 novoTab.setFitness(fitness)
-                self.vizinhos.put(novoTab)
-                self.visitados.append(copy.deepcopy(novoTab.matriz))
+                tab[lin][col] = anterior
+#                 if not novoTab.matriz in self.visitados:
+                self.vizinhos.put(novoTab)  
+#                     self.visitados.append(novoTab)
+            else:
+                if random.random() >= 0.2:   #self.tentativas / TENTATIVAS:
+                    novoTab = tab.clone()
+                    novoTab.setFitness(fitness)
+                    if len(self.vizinhos) == self.vizinhos.maxsize:
+                        for i in range(int(self.k*0.01)): self.vizinhos.removeRandom()
+                    self.vizinhos.put(novoTab)
+                    
+#                     self.visitados.append(novoTab)
+                    
                 
         #except IndexError: print("erro")
         finally:
@@ -157,13 +192,13 @@ class Solver:
         for i in range(self.k):
             estadoInicial = self.tabInicial.preencheAleatorio()
             self.vizinhos.put(estadoInicial)
-            self.visitados.append(estadoInicial)
+#             self.visitados.append(estadoInicial)
         
-        tentativas = 0
+        self.tentativas = 0
         while True:
             
             melhor = self.vizinhos.get()
-            if melhor.estahResolvido() or tentativas == TENTATIVAS:
+            if melhor.estahResolvido() or self.tentativas == TENTATIVAS:
                 return melhor
             self.vizinhos.put(melhor)
             print(melhor.getFitness())
@@ -180,14 +215,14 @@ class Solver:
             for t in threads:
                 t.join()
             
-            tentativas += 1
-            print(tentativas)
+            self.tentativas += 1
+            print(self.tentativas)
             
     def resolver_sudoku_sequencial(self, metodoVizinhos):
         for i in range(self.k):
             estadoInicial = self.tabInicial.preencheAleatorio()
             self.vizinhos.put(estadoInicial)
-            self.visitados.append(copy.deepcopy(estadoInicial.matriz))
+            self.visitados.append(estadoInicial)
         
         tentativas = 0
         while True:
@@ -221,7 +256,7 @@ class Solver:
 # t_final = time.time()
 # print "Tempo de execução =", t_final - t_inicial
 
-solver = Solver(TAB_TAREFA,100)
-solucao = solver.resolver_sudoku_paralelo(solver.proximos_vizinhos_total_random )
+solver = Solver(TAB_TAREFA,1000)
+solucao = solver.resolver_sudoku_sequencial(solver.proximos_vizinhos_total_random )
 solucao.printthis()
 print(solucao.fitness)
