@@ -164,18 +164,23 @@ class Solver:
             if fitness < vizinhosAtuais[-1].getFitness():                     
                 novoTab = tab.clone()
                 novoTab.setFitness(fitness)
-                tab[lin][col] = anterior
-#                 if not novoTab.matriz in self.visitados:
+                tab[lin][col] = anterior                 
+#                 if not novoTab in self.visitados:                   
                 self.vizinhos.put(novoTab)  
 #                     self.visitados.append(novoTab)
             else:
                 if random.random() >= 0.2:   #self.tentativas / TENTATIVAS:
                     novoTab = tab.clone()
                     novoTab.setFitness(fitness)
+                    
+#                     if not novoTab in self.visitados:                   
+                        
                     if len(self.vizinhos) == self.vizinhos.maxsize:
                         for i in range(int(self.k*0.01)): self.vizinhos.removeRandom()
-                    self.vizinhos.put(novoTab)
                     
+                    
+                    self.vizinhos.put(novoTab)
+                
 #                     self.visitados.append(novoTab)
                     
                 
