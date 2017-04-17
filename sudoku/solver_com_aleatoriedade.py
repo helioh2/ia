@@ -164,18 +164,28 @@ class Solver:
             if fitness < vizinhosAtuais[-1].getFitness():                     
                 novoTab = tab.clone()
                 novoTab.setFitness(fitness)
-                tab[lin][col] = anterior
-#                 if not novoTab.matriz in self.visitados:
+                tab[lin][col] = anterior                 
+#                 if not novoTab in self.visitados:                   
                 self.vizinhos.put(novoTab)  
 #                     self.visitados.append(novoTab)
             else:
                 if random.random() >= 0.0:
                     novoTab = tab.clone()
                     novoTab.setFitness(fitness)
+                    
+#                     if not novoTab in self.visitados:                   
+                        
                     if len(self.vizinhos) == self.vizinhos.maxsize:
+<<<<<<< HEAD
                         for i in range(int(self.k*0.05)): self.vizinhos.removeRandom()
                     self.vizinhos.put(novoTab)
+=======
+                        for i in range(int(self.k*0.01)): self.vizinhos.removeRandom()
+>>>>>>> branch 'master' of https://github.com/helioh2/ia.git
                     
+                    
+                    self.vizinhos.put(novoTab)
+                
 #                     self.visitados.append(novoTab)
                     
                 
