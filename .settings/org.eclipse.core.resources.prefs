@@ -5,4 +5,5 @@ encoding//aestrela/aestrelaiter.py=utf-8
 encoding//aestrela/slidingpuzzle.py=utf-8
 encoding//sudoku/dados.py=utf-8
 encoding//sudoku/solver.py=utf-8
+encoding//sudoku/solver_com_aleatoriedade.py=utf-8
 encoding//sudoku/solver_incremental.py=utf-8

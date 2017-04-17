@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from sudoku.dados import *
-import time
 import bisect
-import random
-from Queue import Queue
 import threading
 
-TENTATIVAS = 500
+TENTATIVAS = 5000
 
 class Node :
     def __init__( self, data ) :
@@ -24,6 +21,10 @@ class FilaPrioridadeLimitada():
         self.queue = []
         self.mutex = threading.Lock()
         self.maxsize = maxsize
+        
+    
+    def __len__(self):
+        return len(self.queue)
         
 
 
@@ -54,6 +55,24 @@ class FilaPrioridadeLimitada():
         self.mutex.release()
         return last
     
+    def removeLast(self):
+        
+      
+        self.mutex.acquire()
+        self.queue = self.queue[:-1]
+        self.mutex.release()
+        
+    def removeRandom(self):
+        
+        self.mutex.acquire()
+        value = self.queue[random.randrange(len(self.queue))]
+        self.queue.remove(value)
+        self.mutex.release()
+        
+    def __iter__(self):
+        return self.queue.__iter__()
+        
+    
     
     
 
@@ -65,6 +84,8 @@ class Solver:
         self.k = k
         self.visitados = []
         self.countErrors = 0
+        self.tentativas = 0
+#         self.temperatura = 
     
     def checkVisitados(self, tab, lin, col):
 
@@ -132,47 +153,76 @@ class Solver:
         randomnum = random.randrange(1,10)
         anterior = tab[lin][col]
         tab[lin][col] = randomnum
-        fitness = tab.countInvalidos()
+        
         try:
-            if fitness < vizinhosAtuais[-1].getFitness():                       
+#             if tab.matriz in self.visitados:
+#                 tab[lin][col] = anterior
+#                 return
+        
+            fitness = tab.countInvalidos()
+            
+            if fitness < vizinhosAtuais[-1].getFitness():                     
                 novoTab = tab.clone()
                 novoTab.setFitness(fitness)
-                self.vizinhos.put(novoTab)
+                tab[lin][col] = anterior
+#                 if not novoTab.matriz in self.visitados:
+                self.vizinhos.put(novoTab)  
+#                     self.visitados.append(novoTab)
+            else:
+                if random.random() >= 0.2:   #self.tentativas / TENTATIVAS:
+                    novoTab = tab.clone()
+                    novoTab.setFitness(fitness)
+                    if len(self.vizinhos) == self.vizinhos.maxsize:
+                        for i in range(int(self.k*0.01)): self.vizinhos.removeRandom()
+                    self.vizinhos.put(novoTab)
+                    
+#                     self.visitados.append(novoTab)
+                    
+                
         #except IndexError: print("erro")
         finally:
             tab[lin][col] = anterior
 
 
+    def proximo_vizinhos_random_9(self,tab, vizinhosAtuais):
+        for i in range(9):
+            self.proximos_vizinhos_total_random(tab, vizinhosAtuais)
+
     def resolver_sudoku_paralelo(self, metodoVizinhos):
         for i in range(self.k):
             estadoInicial = self.tabInicial.preencheAleatorio()
             self.vizinhos.put(estadoInicial)
-            self.visitados.append(estadoInicial)
+#             self.visitados.append(estadoInicial)
         
-        tentativas = 0
+        self.tentativas = 0
         while True:
             
             melhor = self.vizinhos.get()
-            if melhor.estahResolvido() or tentativas == TENTATIVAS:
+            if melhor.estahResolvido() or self.tentativas == TENTATIVAS:
                 return melhor
             self.vizinhos.put(melhor)
             print(melhor.getFitness())
             
             vizinhosAtuais = self.vizinhos.getAll()
 
+            threads = []
             for v in vizinhosAtuais:
                 t = threading.Thread(target=metodoVizinhos, kwargs = {"tab":v, "vizinhosAtuais":vizinhosAtuais} )
                 t.daemon = True
                 t.start()
+                threads.append(t)
             
-            tentativas += 1
-            print(tentativas)
+            for t in threads:
+                t.join()
+            
+            self.tentativas += 1
+            print(self.tentativas)
             
     def resolver_sudoku_sequencial(self, metodoVizinhos):
         for i in range(self.k):
             estadoInicial = self.tabInicial.preencheAleatorio()
             self.vizinhos.put(estadoInicial)
-            self.visitados.append(copy.deepcopy(estadoInicial.matriz))
+            self.visitados.append(estadoInicial)
         
         tentativas = 0
         while True:
@@ -206,8 +256,7 @@ class Solver:
 # t_final = time.time()
 # print "Tempo de execução =", t_final - t_inicial
 
-
-solver = Solver(TAB_TAREFA,100)
-solucao = solver.resolver_sudoku_paralelo(solver.proximos_vizinhos_total_random )
+solver = Solver(TAB_TAREFA,1000)
+solucao = solver.resolver_sudoku_sequencial(solver.proximos_vizinhos_total_random )
 solucao.printthis()
 print(solucao.fitness)
