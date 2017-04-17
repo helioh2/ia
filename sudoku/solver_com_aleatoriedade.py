@@ -4,7 +4,7 @@ from sudoku.dados import *
 import bisect
 import threading
 
-TENTATIVAS = 5000
+TENTATIVAS = 10000
 
 class Node :
     def __init__( self, data ) :
@@ -169,11 +169,11 @@ class Solver:
                 self.vizinhos.put(novoTab)  
 #                     self.visitados.append(novoTab)
             else:
-                if random.random() >= 0.2:   #self.tentativas / TENTATIVAS:
+                if random.random() >= 0.0:
                     novoTab = tab.clone()
                     novoTab.setFitness(fitness)
                     if len(self.vizinhos) == self.vizinhos.maxsize:
-                        for i in range(int(self.k*0.01)): self.vizinhos.removeRandom()
+                        for i in range(int(self.k*0.05)): self.vizinhos.removeRandom()
                     self.vizinhos.put(novoTab)
                     
 #                     self.visitados.append(novoTab)
@@ -256,7 +256,7 @@ class Solver:
 # t_final = time.time()
 # print "Tempo de execução =", t_final - t_inicial
 
-solver = Solver(TAB_TAREFA,1000)
+solver = Solver(TAB_TAREFA,100)
 solucao = solver.resolver_sudoku_sequencial(solver.proximos_vizinhos_total_random )
 solucao.printthis()
 print(solucao.fitness)
