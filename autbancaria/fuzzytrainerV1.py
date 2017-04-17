@@ -4,10 +4,10 @@ from compiler.ast import Class
 
 ################## PREPARACAO ##################
 
-FILENAME = "dados_autent_bancaria.txt"
+FILENAMETRAIN = "dadostrain.txt"
 
-def lerArquivo():
-    f = open(FILENAME,"r")
+def lerArquivo(filename):
+    f = open(filename,"r")
     
     entradas = []
     saidas = []
@@ -15,7 +15,7 @@ def lerArquivo():
     for line in f:
         values = line.split(",")
         entradas.append([float(v) for v in values[:4]])
-        saidas.append(int(values[4]))
+        saidas.append(float(values[4].rstrip()))
     
     f.close()
 
@@ -24,7 +24,7 @@ def lerArquivo():
     
     return (entradas,saidas)
 
-ENTRADAS, SAIDAS = lerArquivo()
+ENTRADAS, SAIDAS = lerArquivo(FILENAMETRAIN)
 
 CLASSES = ["falsificada", "autentica"]
 INPUT_VARS = ["variance", "skewness", "curtosis", "entropy"]
@@ -53,8 +53,8 @@ calculaMaxEMins()
 def scale_value(x,minimo,maximo):
     return (x - minimo) / (maximo - minimo)
 
-print(scale_value(4.5459, -7.0421, 6.8248))
-print(scale_value(0.1, 0, 1))
+# print(scale_value(4.5459, -7.0421, 6.8248))
+# print(scale_value(0.1, 0, 1))
 
 def gen_default_pertinence_low(minimo,maximo):
     
@@ -118,16 +118,18 @@ PERT_FUNCTIONS_GENS = [gen_default_pertinence_low, gen_default_pertinence_medium
 
 PERT_FUNCTIONS = []
 
-def generate_pertinence_functions():
+def generate_pertinence_functions(pertFunctionsGens):
+    pertFunctions = []
     for v in range(len(INPUT_VARS)):
         var_functions = []
         for k in range(len(LING_VALUES)):
-            gen = PERT_FUNCTIONS_GENS[k]
+            gen = pertFunctionsGens[k]
             func = gen(MINVARS[v], MAXVARS[v])
             var_functions.append(func)
-        PERT_FUNCTIONS.append(var_functions)
+        pertFunctions.append(var_functions)
+    return pertFunctions
 
-generate_pertinence_functions()
+PERT_FUNCTIONS = generate_pertinence_functions(PERT_FUNCTIONS_GENS)
 
 print PERT_FUNCTIONS
 
@@ -135,10 +137,10 @@ print PERT_FUNCTIONS
 
 ######################## Criar regras basicas ###########################
 
-def calcRegras():
+def calcRegras(entradas, saidas):
         
     regras = []
-    for entrada, saida in zip(ENTRADAS, SAIDAS):
+    for entrada, saida in zip(entradas, saidas):
         termos = []
         
         for i in range(len(entrada)):
@@ -153,7 +155,7 @@ def calcRegras():
             lingValue = LING_VALUES[index_maior]
             termos.append((lingValue,maior))
             
-        termos.append(CLASSES[saida])
+        termos.append(CLASSES[int(saida)])
         regras.append(termos)
         
     return regras
@@ -168,7 +170,7 @@ def printRegras(regras):
         print "entao",r[4]
              
 
-regras = calcRegras()
+regras = calcRegras(ENTRADAS, SAIDAS)
 printRegras(regras)
 
 
@@ -214,12 +216,32 @@ for ante, indices in antecedentes.iteritems():
 printRegras(regras_finais)
 print len(regras)
 print len(regras_finais)
+    
+    
+## testando: ####
+
+FILENAMETEST = "dadostest.txt"                
+ENTRADASTEST, SAIDASTEST = lerArquivo(FILENAMETEST)
+
+regrastest = calcRegras(ENTRADASTEST, SAIDASTEST)
+
+
+def testRegras(regrasTreinadas, regrasTest):
+    rTreinadasApenasLing = [[r[0][0],r[1][0],r[2][0],r[3][0],r[4]] for r in regrasTreinadas]
+    rTestApenasLing = [[r[0][0],r[1][0],r[2][0],r[3][0],r[4]] for r in regrasTest]
+#     print(rTreinadasApenasLing)
+    
+    cont = 0
+    
+    for rtest in rTestApenasLing:
+        if rtest in rTreinadasApenasLing:
+            cont += 1
+    return cont, float(cont)/len(regrasTest)
         
-                     
 
 
+contExitos, percExitos = testRegras(regras_finais, regrastest)
 
-
-
+print("Testes que bateram com as regras treinadas = ",contExitos,". Porcentagem de exito = ", percExitos)
 
 
