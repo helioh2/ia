@@ -88,13 +88,27 @@ class Solver:
             if proximo:
                 proximo.setFitness(81-proximo.contPreenchidos())
                 self.vizinhos.put(proximo)
-            
-    def preencheAlgumBranco(self, tab, vizinhosAtuais):
+
+
+
+    def preencheProximoRandom(self, tab, vizinhosAtuais):
         for i in range(9):
-            proximo = tab.preencheAlgumEmBranco(random.randrange(9))
+            proximo = tab.preencheProximoRandom()
             if proximo:
                 proximo.setFitness(81-proximo.contPreenchidos())
-                self.vizinhos.put(proximo)       
+                self.vizinhos.put(proximo)
+            else:
+                estadoInicial = self.tabInicial.preencheAlgumEmBranco(random.randrange(9))
+                if estadoInicial:
+                    estadoInicial.setFitness(81 - estadoInicial.contPreenchidos())
+                    self.vizinhos.put(estadoInicial)
+            
+    def preencheAlgumBranco(self, tab, vizinhosAtuais):
+        # for i in range(9):
+        proximo = tab.preencheAlgumEmBranco(random.randrange(9))
+        if proximo:
+            proximo.setFitness(81-proximo.contPreenchidos())
+            self.vizinhos.put(proximo)
         
         
         
@@ -173,7 +187,7 @@ class Solver:
 # t_final = time.time()
 # print "Tempo de execução =", t_final - t_inicial
 
-solver = Solver(TAB_TAREFA,10000)
-solucao = solver.resolver_sudoku_sequencial(solver.preencheAlgumBranco  )
+solver = Solver(TAB_TAREFA,100)
+solucao = solver.resolver_sudoku_sequencial(solver.preencheProximoRandom  )
 solucao.printthis()
 print(solucao.fitness)

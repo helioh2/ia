@@ -305,7 +305,22 @@ class Tabuleiro:
             self.matriz[lin][col] = None
             return novoTab
         self.matriz[lin][col] = None
-    
+
+    def preencheProximoRandom(self):
+        primeiro = self.primeiroVazio()
+        if self.primeiroVazio():
+            (lin, col) = primeiro
+            self.matriz[lin][col] = random.randrange(1, 10)
+            count = 0
+            while self.isInvalido():
+                self.matriz[lin][col] = random.randrange(1, 10)
+                count += 1
+                if count > 10: return False
+            novoTab = self.clone()
+            self.matriz[lin][col] = None
+            return novoTab
+            self.matriz[lin][col] = None
+
     def contPreenchidos(self):
         cont = 0
         for lin in range(9):

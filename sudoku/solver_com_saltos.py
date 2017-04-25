@@ -162,6 +162,14 @@ class Solver:
                 self.vizinhos.put(novoTab)
                 if self.considera_visitados:
                     self.visitados.append(copy.deepcopy(novoTab.matriz))
+            elif self.aleatoriedade and random.random() >= self.tentativas / TENTATIVAS:
+                for i in range(int(self.k * self.porcentagem_novos)): self.vizinhos.removeRandom()
+                for i in range(int(self.k * self.porcentagem_novos)):
+                    novoTab = tab.clone()
+                    novoTab.setFitness(fitness)
+                    self.vizinhos.put(novoTab)
+                    if self.considera_visitados:
+                        self.visitados.append(copy.deepcopy(novoTab.matriz))
 
         # except IndexError: print("erro")
         finally:
@@ -217,18 +225,9 @@ class Solver:
 
         vizinhosAtuais = self.vizinhos.getAll()
         return vizinhosAtuais
-        #             self.vizinhos.removeAll()
 
     def resolver_parte2(self):
 
-        if self.aleatoriedade and random.random() >= self.tentativas / TENTATIVAS:
-            for i in range(int(self.k * self.porcentagem_novos)): self.vizinhos.removeRandom()
-            for i in range(int(self.k * self.porcentagem_novos)):
-                estadoAleatorio = self.tabInicial.preencheAleatorio()
-                if estadoAleatorio.matriz not in self.visitados:
-                    self.vizinhos.put(estadoAleatorio)
-                    if self.considera_visitados:
-                        self.visitados.append(copy.deepcopy(estadoAleatorio.matriz))
         print("Num de visitados:", len(self.visitados))
         print("Num de vizinhos:", len(self.vizinhos))
         self.tentativas += 1
@@ -265,7 +264,7 @@ if opcao == 1:
     print(solucao.fitness)
 else:
     k = int(input("Valor do k: "))
-    solver = Solver(TAB_TAREFA, k)
+    solver = Solver(Tabuleiro(TAB_FACIL, calcPreenchidos=True), k)
 
     modos_execucao = [solver.resolver_sudoku_sequencial, solver.resolver_sudoku_paralelo]
     estrategias_vizinho = [solver.proximos_vizinhos_total_random, solver.proximos_vizinhos_fliptodos, \
@@ -277,9 +276,12 @@ else:
         int(input("Áleatório total (1), Flip todos (2), Flip um por linha (3), ou Flip Aleatório (4)")) - 1]
     TENTATIVAS = int(input("Quantas iterações: "))
 
-    aleatoriedade = True if int(input("Aleatoriedade (1) ou Não (2): ")) == 1 else False
-    solver.aleatoriedade = aleatoriedade
-    if aleatoriedade:
+    solver.considera_visitados = True if int(input("Considera visitados (1) ou Não (2): ")) == 1 else False
+
+
+    solver.aleatoriedade = True if int(input("Aleatoriedade (1) ou Não (2): ")) == 1 else False
+
+    if solver.aleatoriedade:
         porcentagem_novos = float(input("Porcentagem de novos aleaórios: "))
         limite_estagnacao = int(input("Limite de estagnação: "))
         porcentagem_limpa_estagnacao = float(input("Porcentagem de limpa ao estagnar: "))
