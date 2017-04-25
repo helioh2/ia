@@ -4,7 +4,7 @@ from sudoku.dados import *
 import bisect
 import threading
 
-TENTATIVAS = 5000
+TENTATIVAS = 100000
 
 class Node :
     def __init__( self, data ) :
@@ -221,7 +221,7 @@ class Solver:
 # t_final = time.time()
 # print "Tempo de execução =", t_final - t_inicial
 
-solver = Solver(TAB_TAREFA,100)
+solver = Solver(TAB_TAREFA,10)
 solucao = solver.resolver_sudoku_paralelo(solver.proximos_vizinhos_total_random )
 solucao.printthis()
 print(solucao.fitness)

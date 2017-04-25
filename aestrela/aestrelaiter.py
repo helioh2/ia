@@ -1,9 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+'''Template para busca em profundidade com backtracking (retorna uma solucao)'''
+
+'''
+def funcao_backtracking(x):
+    
+   if estah_resolvido(x):
+        return x
+    else:
+        for t in proximas_possiveis_solucoes(x):  #de preferencia retorna um gerador
+            if not eh_invalido(t):
+                tentativa = funcao_backtracking(t) #testa um proximo / filho
+                if tentativa:  #aqui ocorre o backtracking da solução caso encontrada
+                    return tentativa     
+        return False
+        
+'''
 
 import copy
-import bisect
 
 ##Constantes:
 B = None
@@ -15,7 +30,6 @@ BAIXO = (1,0)
 CIMA = (-1,0)
 
 DIRS = [DIR,ESQ,BAIXO,CIMA]
-DIRNOMES = ["DIR","ESQ","BAIXO","CIMA"]
 
 
 ##Definições dos dados:
@@ -31,10 +45,10 @@ tab1 =  [[B,1,7],
          [6,2,4]]
 MANTAB1 = 3+2+3+2
 
-tab2 =  [[1,8,7],
+tab2 =  [[8,1,7],
          [3,B,5],
-         [4,6,2]]
-MANTAB2 = 1+3+3+2+2+1+2
+         [6,2,4]]
+MANTAB2 = 4+3+2+3+2
 
 tab3 = [[8,1,7],
          [3,4,5],
@@ -45,33 +59,15 @@ MANTAB3 = 4+3+3+4
 
 # Node
 class Node:
-    def __init__(self, tab, g, gh, pai = None, move = None):
+    def __init__(self, tab, g, gh):
         self.tab = tab
         self.g = g
         self.gh = gh
-        self.pai = pai
-        self.move = move
-        
-    def __lt__(self, outro):
-        #compara qual o menor pelo gh
-        return self.gh < outro.gh
 
-    def __eq__(self, outro):
-        # quando usar comparacao de igual, comparar pelo tab
-        if isinstance(outro, Node):
-            return self.tab == outro.tab
-        else:
-            return outro == self
-        
-    def expandNode(self,h):
-        proximos = [moveB(self.tab,direc) for direc in DIRS]
-    #     proximos = [tab for tab in proximos if tab is not None]
-        g = self.g + 1
-        heuristicas = [h(tab) for tab in proximos]
-        return [Node(tab,g,g+h,self,d) for tab,h,d in \
-                zip(proximos,heuristicas,DIRS) \
-                if tab is not None]
-  
+
+
+contNodes = 0
+
 
 def findN(tab,n):
     for lin in range(3):
@@ -106,21 +102,19 @@ def moveBBaixo(tab):
 
 def manhattan(tab):
     soma = 0
-    if not tab:
-        return None
     for lin in range(3):
         for col in range(3):
-            atual = tab[lin][col] if tab[lin][col] != B else 0
-            linOk, colOk = atual//3, atual%3
+            atual = tab[lin][col]
+            linOk, colOk = findN(tabOk,atual)
+            #print(linOk, colOk)
             distancia = abs(linOk-lin) + abs(colOk-col)
+            #print(distancia)
             soma += distancia
             
     return soma
             
-def hamming(tab):
+def foraDoLugar(tab):
     soma = 0
-    if not tab:
-        return None
     for lin in range(3):
         for col in range(3):
             atual = tab[lin][col] if tab[lin][col] != B else 0
@@ -129,62 +123,126 @@ def hamming(tab):
                 #print(lin,col)
             
     return soma
+                        
+            
+FRONTEIRA = []
 
+def expandNode(x,h):
+    proximos = [moveB(x.tab,direc) for direc in DIRS]
+    proximos = [tab for tab in proximos if tab is not None]
+    g = x.g + 1
+    heuristicas = [h(tab) for tab in proximos]
+    return [Node(tab,g,g+h) for tab,h in zip(proximos,heuristicas)]
 
 
 def estahResolvido(tab):
     return tab == tabOk
 
+import sys
+sys.setrecursionlimit(10000)
 
 def busca(tab,h):
     x = Node(tab,0,0)
     # Node -> Node
-    def buscaAux(x, h):     
-        fronteira = [x]
-        visitados = []
-        while fronteira:
+    def buscaAux(x,h,fronteira, visitados):     
+        if estahResolvido(x.tab):
+            return x
+        else:
+            visitados.append(x.tab)
+            fronteira.remove(x)
             
-            proximo = fronteira.pop(0)
-            if (estahResolvido(proximo.tab)):
-                return proximo
-                
-            visitados.append(proximo)
+            descendentes = expandNode(x,h)
+            descendentes = [d for d in descendentes if d.tab not in visitados \
+                             and d.tab not in [f.tab for f in fronteira]]
+            fronteira += descendentes
+            print(len(fronteira))
             
-            descendentes = proximo.expandNode(h)
-            for d in descendentes:
-                if d not in fronteira and d not in visitados:
-                    bisect.insort(fronteira, d)
-            print(len(visitados))
-#             print("\n\n\n\n")
-#             for node in fronteira:
-                
-            print(fronteira[0].g,fronteira[0].gh, fronteira[0].gh - fronteira[0].g)
+            proximo = min(fronteira, key = lambda x: x.gh)
+            print(proximo.gh)
 
-    return buscaAux(x,h)
+            tentativa = buscaAux(proximo, h, fronteira, visitados) #testa um proximo / filho
+            if tentativa:  #aqui ocorre o backtracking da solução caso encontrada
+                return tentativa     
+        return False
+    return buscaAux(x,h,[x],[])
 
-def extrairMoves(x):
-    moves = []
-    while x:
-        moves.append(x.move)
-        x = x.pai
-    moves.reverse()
-    return moves
 
-def traduzirMoves(moves):
-    movesTrad = []
-    for m in moves:
-        if not m: continue
-        nome = DIRNOMES[DIRS.index(m)]
-        movesTrad.append(nome)
-    return movesTrad
 
+import unittest
+
+class Test(unittest.TestCase):
+
+    def testFindB(self):
+        self.assertEqual(findB(tab1),(0,0))
+        self.assertEqual(findB(tab2),(1,1))
+        self.assertEqual(findB(tab3),(2,2))
+
+    def testMoves(self):
+        self.assertEqual(moveBEsq(tab2),[[8,1,7],\
+                                        [B,3,5],\
+                                        [6,2,4]])
+        self.assertEqual(moveBDir(tab2),[[8,1,7],\
+                                [3,5,B],\
+                                [6,2,4]])  
+        self.assertEqual(moveBCima(tab2),[[8,B,7], \
+                                   [3,1,5],\
+                                   [6,2,4]])
+        self.assertEqual(moveBBaixo(tab2),[[8,1,7], \
+                                    [3,2,5],\
+                                    [6,B,4]])
+
+        self.assertEqual(moveBEsq(tab3),[[8,1,7], \
+                                 [3,4,5],\
+                                 [6,B,2]])
+        self.assertEqual(moveBDir(tab3),None)
+        self.assertEqual(moveBCima(tab3),[[8,1,7], \
+                                     [3,4,B],\
+                                     [6,2,5]])
+        self.assertEqual( moveBBaixo(tab3),None)
+
+
+        self.assertEqual( moveBEsq(tab1), None)
+        self.assertEqual( moveBDir(tab1), [[1,B,7], \
+                                [3,8,5],\
+                                [6,2,4]])
+        self.assertEqual( moveBCima(tab1),None)
+        self.assertEqual( moveBBaixo(tab1), [[3,1,7], \
+                                   [B,8,5],\
+                                   [6,2,4]])
+
+        self.assertEqual(moveB(tab2, (0,1)), [[8,1,7],\
+                                [3,5,B],\
+                                [6,2,4]]) 
+
+    def testProximosFilhos(self):
+        #self.assertEqual( proximos_filhos(tab1),[moveBEsq(tab1), moveBDir(tab1), moveBCima(tab1), moveBBaixo(tab1)] )
+        pass
+
+    def testManhattan(self):
+        self.assertEqual(manhattan(tab1),MANTAB1)
+        self.assertEqual(manhattan(tab2),MANTAB2)
+        self.assertEqual(manhattan(tab3),MANTAB3)
+        self.assertEqual(manhattan(tabOk),MANTABOK)
+
+    def testForaDoLugar(self):
+        self.assertEqual(foraDoLugar(tab1),4)
+        self.assertEqual(foraDoLugar(tab2),5)
+        self.assertEqual(foraDoLugar(tab3),4)
+        self.assertEqual(foraDoLugar(tabOk),0)
+
+    def testBusca(self):
+        # self.assertEqual(busca(tabOk,foraDoLugar).tab,tabOk)
+        # self.assertEqual(busca(tab1,foraDoLugar).tab,tabOk)
+        #self.assertEqual(busca(tab2,foraDoLugar).tab,tabOk)
+        # self.assertEqual(busca(tab3,foraDoLugar).tab,tabOk)
+
+         self.assertEqual(busca(tab1,manhattan).tab,tabOk)
+        # self.assertEqual(busca(tab2,manhattan).tab,tabOk)
+         self.assertEqual(busca(tab3,manhattan).tab,tabOk)
+
+unittest.main()
 
 #testes manuais:
 
-#solucaoTab1h1 = busca(tab1,hamming)
+#solucaoTab1h1 = busca(tab1,foraDoLugar)
 #print(solucaoTab1h1)
-
-resbuscatab1 = busca(tab2,manhattan)
-print(resbuscatab1.move)
-print(extrairMoves(resbuscatab1))
-print(traduzirMoves(extrairMoves(resbuscatab1)))

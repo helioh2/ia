@@ -16,7 +16,7 @@ def print_matriz(m):
                 item += str(m[l][c]) + "\t"
             if c == len(m[l]) - 1:
                 item += "\n"
-            print item,
+            print(item, end=" ")
 
 
 '''
@@ -159,7 +159,7 @@ TAB_MAIS_DIFICIL_DO_MUNDO = [[B, B, 5, 3, B, B, B, B, B],
                             [B, B, 4, B, B, B, B, 3, B],
                             [B, B, B, B, B, 9, 7, B, B]]
 
-TAB_IMPOSSIVEL = [range(1,9)+[None]]+\
+TAB_IMPOSSIVEL = [list(range(1,9))+[None]]+\
                     [[None]*8 + [valor] for valor in range(2,10)] #sem solucao, visualize dando um print nela
 # print_matriz(TAB_IMPOSSIVEL)
 

@@ -101,6 +101,17 @@ def gen_default_pertinence_medium(minimo, maximo):
 
     return pertinence_medium
 
+import math
+
+def norm(X):
+    return math.sqrt(sum(map(lambda x: x**2, X)))
+
+def U(X,k):
+    n = len(X)
+    for i in range(n):
+        for j in range(k):
+            if 
+    
 
 def gen_default_pertinence_high(minimo, maximo):
     def pertinence_high(x):
@@ -182,16 +193,13 @@ printRegras(regras)
 ###################### Calcular niveis de disparo ########################
 
 # norma-t por minimo
-def norma_t_min(pertlist):
+def norma_t(pertlist):
     return min(pertlist)
 
-# norma-t por minimo
-def norma_t_product(pertlist):
-    return reduce(lambda a,b: a*b, pertlist, 1)
 
 niveis_disparos = []
 for r in regras:
-    nivel = norma_t_product([t[1] for t in r[:4]])
+    nivel = norma_t([t[1] for t in r[:4]])
     niveis_disparos.append(nivel)
     
 print niveis_disparos
