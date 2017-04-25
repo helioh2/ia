@@ -74,7 +74,7 @@ class Solver:
         self.contaMelhorSemProgredir = 0
         self.limite_estagnacao = 500
         self.porcentagem_limpa = 0.99
-        self.porcentagem_novos = 0.05
+        self.porcentagem_novos = 0.00
         self.aleatoriedade = True
         self.considera_visitados = False
 
@@ -259,7 +259,7 @@ class Solver:
 
 opcao = int(input("Default (1) ou Customizado (2)? "))
 if opcao == 1:
-    solver = Solver(TAB_TAREFA, 100)
+    solver = Solver(Tabuleiro(TAB_FACIL, calcPreenchidos=True), 100)
     solucao = solver.resolver_sudoku_sequencial(solver.proximos_vizinhos_total_random)
     solucao.printthis()
     print(solucao.fitness)
