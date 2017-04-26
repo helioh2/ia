@@ -7,18 +7,14 @@ import math
 
 TENTATIVAS = 10000
 
-
-def scale_value(x, minimo=0, maximo=math.e):
-    return (x - minimo) / (maximo - minimo)
-
+def scale_value(x,minimo = 0,maximo = math.e):
+	    return (x - minimo) / (maximo - minimo)
 
 def transf_e(x):
-    return math.e ** x
-
+	return math.e**x
 
 def tempera(x):
-    return scale_value(transf_e(1 - x))
-
+	return scale_value(transf_e(1-x))
 
 class Node:
     def __init__(self, data):
@@ -91,14 +87,12 @@ class Solver:
         self.limite_estagnacao = 500
         self.porcentagem_limpa = 0.99
         self.porcentagem_novos = 0.01
-        self.aleatoriedade = False
+        self.aleatoriedade = True
         self.considera_visitados = False
         self.file = open("melhores.csv", "w")
         self.count_calc_fitness = 0
 
     #         self.temperatura =
-
-    ##INICIO ESTRATÉGIAS DE GERACAO DE VIZINHOS DESCARTADAS
 
     def checkVisitados(self, tab, lin, col):
 
@@ -158,14 +152,6 @@ class Solver:
                        self.checkVisitados if self.considera_visitados \
                            else self.dontCheckVisitados())
 
-    def proximo_vizinhos_random_9(self, tab, vizinhosAtuais):
-        for i in range(9):
-            self.proximos_vizinhos_total_random(tab, vizinhosAtuais)
-
-    ##FIM ESTRATÉGIAS DE GERACAO DE VIZINHOS DESCARTADAS
-
-
-
     def proximos_vizinhos_total_random(self, tab, vizinhosAtuais):
 
         # for i in range(9):
@@ -185,7 +171,14 @@ class Solver:
             fitness = tab.countInvalidos()  ##Função objetivo
             self.count_calc_fitness += 1
 
-            if vizinhosAtuais[-1] and fitness < vizinhosAtuais[-1].getFitness():
+            if self.aleatoriedade and random.random() >= self.tentativas / TENTATIVAS:
+                for i in range(1): self.vizinhos.removeRandom()
+                novoTab = tab.clone()
+                novoTab.setFitness(fitness)
+                self.vizinhos.put(novoTab)
+                if self.considera_visitados:
+                    self.visitados.append(copy.deepcopy(novoTab.matriz))
+            elif vizinhosAtuais[-1] and fitness < vizinhosAtuais[-1].getFitness():
                 novoTab = tab.clone()
                 novoTab.setFitness(fitness)
                 tab[lin][col] = anterior
@@ -193,18 +186,16 @@ class Solver:
                     self.vizinhos.put(novoTab)
                     if self.considera_visitados:
                         self.visitados.append(copy.deepcopy(novoTab.matriz))
-            elif self.aleatoriedade and random.random() >= self.tentativas / TENTATIVAS:
-                for i in range(int(self.k * self.porcentagem_novos)): self.vizinhos.removeRandom()
-                for i in range(int(self.k * self.porcentagem_novos)):
-                    novoTab = tab.clone()
-                    novoTab.setFitness(fitness)
-                    self.vizinhos.put(novoTab)
-                    if self.considera_visitados:
-                        self.visitados.append(copy.deepcopy(novoTab.matriz))
+
+
 
         # except IndexError: print("erro")
         finally:
             tab[lin][col] = anterior
+
+    def proximo_vizinhos_random_9(self, tab, vizinhosAtuais):
+        for i in range(9):
+            self.proximos_vizinhos_total_random(tab, vizinhosAtuais)
 
     def resolver_sudoku_paralelo(self, metodoVizinhos):
         self.preparacao_inicial()
@@ -231,6 +222,7 @@ class Solver:
             self.resolver_parte2()
 
     def resolver_parte1(self, melhor):
+
 
         if self.aleatoriedade:
             if melhor.getFitness() < self.melhor:
@@ -271,17 +263,17 @@ class Solver:
 
     def resolver_sudoku_sequencial(self, metodoVizinhos):
 
+
         try:
             self.preparacao_inicial()
             while True:
 
                 melhor = self.vizinhos.get()
                 if melhor.estahResolvido() or self.tentativas == TENTATIVAS:
-                    self.file.write(str(melhor.getFitness()) + "\n")
                     return melhor
                 self.vizinhos.put(melhor)
                 print(melhor.getFitness())
-                self.file.write(str(melhor.getFitness()) + "\n")
+                self.file.write(str(melhor.getFitness())+"\n")
 
                 vizinhosAtuais = self.resolver_parte1(melhor)
 
@@ -294,15 +286,14 @@ class Solver:
             self.file.close()
 
 
-opcao = int(input("Default [Estratégia 1] (1) ou Customizado (2)? "))
+
+opcao = int(input("Default (1) ou Customizado (2)? "))
 if opcao == 1:
-    # solver = Solver(Tabuleiro(TAB_FACIL, calcPreenchidos=True), 500)
-    solver = Solver(TAB_TAREFA, 500)
+    solver = Solver(TAB_TAREFA, 1000)
     solucao = solver.resolver_sudoku_sequencial(solver.proximos_vizinhos_total_random)
 
 else:
     k = int(input("Valor do k: "))
-    # solver = Solver(Tabuleiro(TAB_FACIL, calcPreenchidos=True), k)
     solver = Solver(TAB_TAREFA, k)
 
     modos_execucao = [solver.resolver_sudoku_sequencial, solver.resolver_sudoku_paralelo]
@@ -316,6 +307,7 @@ else:
     TENTATIVAS = int(input("Quantas iterações: "))
 
     solver.considera_visitados = True if int(input("Considera visitados (1) ou Não (2): ")) == 1 else False
+
 
     solver.aleatoriedade = True if int(input("Aleatoriedade (1) ou Não (2): ")) == 1 else False
 

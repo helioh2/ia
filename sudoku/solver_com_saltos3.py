@@ -294,10 +294,36 @@ class Solver:
             self.file.close()
 
 
-opcao = int(input("Default [Estratégia 1] (1) ou Customizado (2)? "))
+##MAIN:
+
+opcao = int(input("Default [Estratégia 1] (1); Estratégia 3 (3); Estratégia 5 (5); Estratégia 7 (7); ou Customizado (10)? "))
 if opcao == 1:
     # solver = Solver(Tabuleiro(TAB_FACIL, calcPreenchidos=True), 500)
     solver = Solver(TAB_TAREFA, 500)
+    solucao = solver.resolver_sudoku_sequencial(solver.proximos_vizinhos_total_random)
+
+elif opcao == 3:
+    solver = Solver(TAB_TAREFA, 500)
+    solver.aleatoriedade = True
+    solver.porcentagem_novos = 0.01
+    solver.limite_estagnacao = TENTATIVAS+1
+    solver.porcentagem_limpa = 0.0
+    solucao = solver.resolver_sudoku_sequencial(solver.proximos_vizinhos_total_random)
+
+elif opcao == 5:
+    solver = Solver(TAB_TAREFA, 500)
+    solver.aleatoriedade = True
+    solver.porcentagem_novos = 0.01
+    solver.limite_estagnacao = 500
+    solver.porcentagem_limpa = 0.998
+    solucao = solver.resolver_sudoku_sequencial(solver.proximos_vizinhos_total_random)
+
+elif opcao == 7:
+    solver = Solver(TAB_TAREFA, 500)
+    solver.aleatoriedade = True
+    solver.porcentagem_novos = 0.0
+    solver.limite_estagnacao = 500
+    solver.porcentagem_limpa = 0.998
     solucao = solver.resolver_sudoku_sequencial(solver.proximos_vizinhos_total_random)
 
 else:
@@ -312,7 +338,7 @@ else:
 
     modo_exec = modos_execucao[int(input("Sequencial (1) ou Paralelo (2): ")) - 1]
     estrat_vizinho = estrategias_vizinho[
-        int(input("Áleatório total (1), Flip todos (2), Flip um por linha (3), ou Flip Aleatório (4)")) - 1]
+        int(input("Geração de vizinhos: Áleatório total (1), Flip todos (2), Flip um por linha (3), ou Flip Aleatório (4)? ")) - 1]
     TENTATIVAS = int(input("Quantas iterações: "))
 
     solver.considera_visitados = True if int(input("Considera visitados (1) ou Não (2): ")) == 1 else False
@@ -320,9 +346,9 @@ else:
     solver.aleatoriedade = True if int(input("Aleatoriedade (1) ou Não (2): ")) == 1 else False
 
     if solver.aleatoriedade:
-        porcentagem_novos = float(input("Porcentagem de novos aleaórios: "))
+        porcentagem_novos = float(input("Porcentagem de remoção na têmpera: "))
         limite_estagnacao = int(input("Limite de estagnação: "))
-        porcentagem_limpa_estagnacao = float(input("Porcentagem de limpa ao estagnar: "))
+        porcentagem_limpa_estagnacao = float(input("Porcentagem de limpeza ao estagnar: "))
 
         solver.porcentagem_limpa = porcentagem_limpa_estagnacao
         solver.limite_estagnacao = limite_estagnacao

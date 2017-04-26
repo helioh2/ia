@@ -62,7 +62,7 @@ class Node:
             return self.tab == outro.tab
         else:
             return outro == self
-
+        
     def expandNode(self,h):
         proximos = [moveB(self.tab,direc) for direc in DIRS]
     #     proximos = [tab for tab in proximos if tab is not None]
@@ -135,7 +135,6 @@ def hamming(tab):
 def estahResolvido(tab):
     return tab == tabOk
 
-
 MAX_NODES_MEM = 1
 MAX_NODES_CREATED = 0
 
@@ -160,11 +159,8 @@ def busca(tab,h):
                 if d not in fronteira and d not in visitados:
                     bisect.insort(fronteira, d)
 
-#             print("\n\n\n\n")
-#             for node in fronteira:
-                
             print(fronteira[0].g,fronteira[0].gh, fronteira[0].gh - fronteira[0].g)
-            sum_nodes_mem = len(visitados+fronteira)
+            sum_nodes_mem = len(visitados + fronteira)
             global MAX_NODES_MEM
             MAX_NODES_MEM = sum_nodes_mem if sum_nodes_mem > MAX_NODES_MEM else MAX_NODES_MEM
 
@@ -191,9 +187,10 @@ def traduzirMoves(moves):
 
 #solucaoTab1h1 = busca(tab1,hamming)
 #print(solucaoTab1h1)
+
 import time
 t_inic = time.time()
-resbuscatab1, quant_nodes = busca(tab2,manhattan)
+resbuscatab1, quant_nodes = busca(tab2,hamming)
 t_fim = time.time()
 print("Tempo total =", str(t_fim - t_inic))
 print("Quantidade de nós visitados: "+str(quant_nodes))

@@ -1,0 +1,19 @@
+Para executar os programas, é necessário ter o Python 3.x instalado (embora também funcione no Python 2.x).
+
+No Linux (Ubuntu/Debian), basta fazer: sudo apt-get install python3.5
+
+No Windows, baixar instalador pela página: https://www.python.org/downloads/windows/
+
+Também é possível executar via Web (copie e cole o código no editor) pelo repl.it: 
+Manhattan: https://repl.it/H2N3/0
+Hamming: https://repl.it/H2Nd/0
+
+---
+
+Para executar no Linux ou Windows:
+	- Por linha de comando:
+		>> python aestrela_hamming.py
+		>> python aestrela_manhattan.py
+
+Por IDLE:
+	Abra o IDLE, carregue o arquivo e aperte F5 para executar
