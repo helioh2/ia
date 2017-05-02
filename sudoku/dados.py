@@ -264,8 +264,8 @@ class Tabuleiro:
         :param tab: Tabuleiro
         :return: Boolean
         '''
-        return not self.primeiroVazio() and not self.isInvalido()
-                
+        # return not self.primeiroVazio() and not self.isInvalido()
+        return self.fitness == 0
 
     def preencheAleatorio(self):
         novoTab = self.clone()
