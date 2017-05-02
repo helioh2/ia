@@ -29,7 +29,7 @@ ENTRADASTEST, SAIDASTEST = lerArquivo(FILENAMETEST)
 
 CLASSES = ["autentica", "falsificada"]
 INPUT_VARS = ["variance", "skewness", "curtosis", "entropy"]
-LING_VALUES = ["very low", "low", "medium", "high", "very high"]
+LING_VALUES = ["low", "medium", "high"]
 
 MAXVARS = []
 MINVARS = []
@@ -43,49 +43,44 @@ def calculaMaxEMins():
         MAXVARS.append(maxvar)
         MINVARS.append(minvar)
 
+    print(MAXVARS)
+    print(MINVARS)
+
 
 calculaMaxEMins()
-
 
 ################# funcoes de pertinencia (grid uniforme) #################
 
 from partitiongeneric2 import *
 
-VL = (0.1, 0.3)
-L = (0.1, 0.3, 0.5)
+L = (0.2, 0.4)
 M = (0.3, 0.5, 0.7)
-H = (0.5, 0.7, 0.9)
-VH = (0.7, 0.9)
+H = (0.6, 0.8)
 
-FUNC_VALUES = (VL,L,M,H,VH)
+FUNC_VALUES = (L, M, H)
 
 PERT_FUNCTIONS_GENS = gen_gen_pertinence(FUNC_VALUES)
 
-PERT_FUNCTIONS = []
-
-def generate_pertinence_functions(pertFunctionsGens):
-    pertFunctions = []
+def generate_pertinence_functions(pert_functions_gens):
+    pert_functions = []
     for v in range(len(INPUT_VARS)):
         var_functions = []
         for k in range(len(LING_VALUES)):
-            gen = pertFunctionsGens[k]
+            gen = pert_functions_gens[k]
             func = gen(MINVARS[v], MAXVARS[v])
             var_functions.append(func)
-        pertFunctions.append(var_functions)
-    return pertFunctions
+        pert_functions.append(var_functions)
+    return pert_functions
 
 
 PERT_FUNCTIONS = generate_pertinence_functions(PERT_FUNCTIONS_GENS)
-
-print(PERT_FUNCTIONS)
-
 
 
 ######################## Criar regras ###########################
 
 from criarregras import *
 
-calcregras = CalcRegras(ENTRADAS, SAIDAS, PERT_FUNCTIONS, LING_VALUES, CLASSES, INPUT_VARS, norma_t=min)
+calcregras = CalcRegras(ENTRADAS, SAIDAS, PERT_FUNCTIONS, LING_VALUES, CLASSES, INPUT_VARS, norma_t=produtorio)
 regras_finais = calcregras.calcula_regras_finais()
 
 ## testando: ####

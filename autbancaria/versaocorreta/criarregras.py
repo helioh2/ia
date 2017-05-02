@@ -1,14 +1,18 @@
-
+def produtorio(L):
+    res = 1
+    for item in L:
+        res *= item
+    return res
 
 class CalcRegras():
-
-    def __init__(self, entradas, saidas, pert_functions, ling_values, classes, input_vars):
+    def __init__(self, entradas, saidas, pert_functions, ling_values, classes, input_vars, norma_t=min):
         self.entradas = entradas
         self.saidas = saidas
         self.pert_functions = pert_functions
         self.ling_values = ling_values
         self.classes = classes
         self.input_vars = input_vars
+        self.norma_t = norma_t
         self.regras_basicas = []
         self.regras_finais = []
 
@@ -31,9 +35,7 @@ class CalcRegras():
             termos.append(self.classes[int(saida)])
             self.regras_basicas.append(termos)
 
-
-
-    def printRegras(self,regras):
+    def printRegras(self, regras):
         for r in regras:
             print("Se", end=" ")
             for i in range(len(self.input_vars)):
@@ -42,32 +44,14 @@ class CalcRegras():
             print("entao", r[4])
 
 
-# regras = calcRegras(ENTRADAS, SAIDAS)
-# printRegras(regras)
 
-
-###################### Calcular niveis de disparo ########################
-
-    def produtorio(L):
-        res = 1
-        for item in L:
-            res *= item
-        return res
-
-    def calcula_niveis_disparo(self, norma_t=min):
+    def calcula_niveis_disparo(self):
         niveis_disparos = []
         for r in self.regras_basicas:
-            nivel = norma_t([t[1] for t in r[:4]])
+            nivel = self.norma_t([t[1] for t in r[:4]])
             niveis_disparos.append(nivel)
         return niveis_disparos
 
-
-
-# niveis_disparos = calcula_niveis_disparo(min) #norma-t = min
-# niveis_disparos = calcula_niveis_disparo(produtorio)  # norma-t = produtorio
-# print(niveis_disparos)
-
-###################### encontrar antecedentes iguais #################
     def encontraAntecedentesIguais(self):
         antecedentes = {}
 
@@ -80,7 +64,6 @@ class CalcRegras():
 
         return antecedentes
 
-##################### filtrar regras pelo antecedente com maior regra de disparo ################
     def calcula_regras_finais(self):
         self.calcRegrasBasicas()
         antecedentes = self.encontraAntecedentesIguais()
@@ -95,6 +78,6 @@ class CalcRegras():
         print("----------Regras Finais: -------------")
         self.printRegras(self.regras_finais)
         print("----------------Fim Regras Finais------------------------------")
-        print("Quantidade de regras básicas =",len(self.regras_basicas))
-        print("Quantidade de regras finais =",len(self.regras_finais))
+        print("Quantidade de regras básicas =", len(self.regras_basicas))
+        print("Quantidade de regras finais =", len(self.regras_finais))
         return self.regras_finais
