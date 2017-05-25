@@ -53,6 +53,10 @@ def calcula_centroid(maior_0, maior_1):
     elif pert == pert1:
         return 1.0
 
+def defuzzy_max(maior_0, maior_1):
+    return 0.0 if maior_0 > maior_1 else 1.0
+
+
 
 
 def inferencia(entrada, regras, pert_functions, ling_values, classes, defuzzy=calcula_centroid, norma_t=calcula_disparo_min):

@@ -27,9 +27,9 @@ ENTRADAS, SAIDAS = lerArquivo(FILENAMETRAIN)
 FILENAMETEST = "dadostest.txt"
 ENTRADASTEST, SAIDASTEST = lerArquivo(FILENAMETEST)
 
-CLASSES = ["autentica", "falsificada"]
+CLASSES = ["falsificada", "autentica"]
 INPUT_VARS = ["variance", "skewness", "curtosis", "entropy"]
-LING_VALUES = ["very low", "low", "medium", "high", "very high"]
+LING_VALUES = ["very very low", "very low", "low", "medium", "high", "very high", "very very high"]
 
 MAXVARS = []
 MINVARS = []
@@ -43,6 +43,9 @@ def calculaMaxEMins():
         MAXVARS.append(maxvar)
         MINVARS.append(minvar)
 
+    print(MAXVARS)
+    print(MINVARS)
+
 
 calculaMaxEMins()
 
@@ -51,13 +54,15 @@ calculaMaxEMins()
 
 from partitiongeneric2 import *
 
-VL = (0.1, 0.3)
-L = (0.1, 0.3, 0.5)
-M = (0.3, 0.5, 0.7)
-H = (0.5, 0.7, 0.9)
-VH = (0.7, 0.9)
+VVL = (0.1, 0.3)
+VL = (0.2,0.3,0.4)
+L = (0.3, 0.4, 0.5)
+M = (0.4, 0.5, 0.6)
+H = (0.5,0.6,0.7)
+VH = (0.6, 0.7, 0.8)
+VVH = (0.7, 0.9)
 
-FUNC_VALUES = (VL,L,M,H,VH)
+FUNC_VALUES = (VVL,VL,L,M,H,VH,VVH)
 
 PERT_FUNCTIONS_GENS = gen_gen_pertinence(FUNC_VALUES)
 
@@ -80,12 +85,11 @@ PERT_FUNCTIONS = generate_pertinence_functions(PERT_FUNCTIONS_GENS)
 print(PERT_FUNCTIONS)
 
 
-
 ######################## Criar regras ###########################
 
 from criarregras import *
 
-calcregras = CalcRegras(ENTRADAS, SAIDAS, PERT_FUNCTIONS, LING_VALUES, CLASSES, INPUT_VARS, norma_t=min)
+calcregras = CalcRegras(ENTRADAS, SAIDAS, PERT_FUNCTIONS, LING_VALUES, CLASSES, INPUT_VARS, norma_t=produtorio)
 regras_finais = calcregras.calcula_regras_finais()
 
 ## testando: ####

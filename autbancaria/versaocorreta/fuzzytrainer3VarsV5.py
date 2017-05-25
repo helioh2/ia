@@ -27,9 +27,9 @@ ENTRADAS, SAIDAS = lerArquivo(FILENAMETRAIN)
 FILENAMETEST = "dadostest.txt"
 ENTRADASTEST, SAIDASTEST = lerArquivo(FILENAMETEST)
 
-CLASSES = ["autentica", "falsificada"]
+CLASSES = ["falsificada", "autentica"]
 INPUT_VARS = ["variance", "skewness", "curtosis", "entropy"]
-LING_VALUES = ["very low", "low", "medium", "high", "very high"]
+LING_VALUES = ["low", "medium", "high"]
 
 MAXVARS = []
 MINVARS = []
@@ -43,6 +43,9 @@ def calculaMaxEMins():
         MAXVARS.append(maxvar)
         MINVARS.append(minvar)
 
+    print(MAXVARS)
+    print(MINVARS)
+
 
 calculaMaxEMins()
 
@@ -51,17 +54,10 @@ calculaMaxEMins()
 
 from partitiongeneric2 import *
 
-VL = (0.1, 0.3)
-L = (0.1, 0.3, 0.5)
-M = (0.3, 0.5, 0.7)
-H = (0.5, 0.7, 0.9)
-VH = (0.7, 0.9)
-
-FUNC_VALUES = (VL,L,M,H,VH)
+FUNC_VALUES = ((0.1, 0.45), (0.15, 0.5, 0.85), (0.55, 0.9))
 
 PERT_FUNCTIONS_GENS = gen_gen_pertinence(FUNC_VALUES)
 
-PERT_FUNCTIONS = []
 
 def generate_pertinence_functions(pertFunctionsGens):
     pertFunctions = []
@@ -98,3 +94,4 @@ print(matchRegras(ENTRADASTEST, SAIDASTEST, regras_finais, \
 print("----------")
 
 print("Particionamento utilizado:",FUNC_VALUES)
+
