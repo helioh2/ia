@@ -53,49 +53,15 @@ for k in range(len(CLASSES)):
 regras = []
 import itertools
 regras_sem_cons = list(itertools.product(LING_VALUES, repeat=4))
-print(regras_sem_cons)
-print(len(regras_sem_cons))
-regras.append(["alto", "alto", "alto", "baixo", "aceita"])
-regras.append(["medio", "alto", "alto", "baixo", "aceita"])
-regras.append(["baixo", "alto", "alto", "baixo", "replica"])
-regras.append(["alto", "medio", "alto", "baixo", "aceita"])
-regras.append(["alto", "baixo", "alto", "baixo", "replica"])
-regras.append(["alto", "alto", "medio", "baixo", "aceita"])
-regras.append(["alto", "alto", "baixo", "baixo", "rejeita"])
-
-regras.append(["alto", "medio", "medio", "baixo", "aceita"])
-regras.append(["alto", "medio", "baixo", "baixo", "replica"])
-regras.append(["alto", "baixo", "medio", "baixo", "replica"])
-
-regras.append(["medio", "medio", "medio", "baixo", "aceita"])
-regras.append(["medio", "medio", "alto", "baixo", "aceita"])
-regras.append(["medio", "medio", "baixo", "baixo", "replica"])
-regras.append(["medio", "baixo", "medio", "baixo", "replica"])
-regras.append(["medio", "baixo", "alto", "baixo", "aceita"])
-
-regras.append(["baixo", "medio", "medio", "baixo", "replica"])
-regras.append(["baixo", "medio", "baixo", "baixo", "replica"])
-regras.append(["baixo", "baixo", "medio", "baixo", "rejeita"])
-regras.append(["baixo", "baixo", "baixo", "baixo", "rejeita"])
-
-regras.append(["baixo", "baixo", "medio", "baixo", "rejeita"])
+# print(regras_sem_cons)
+for lin in range (len(regras_sem_cons)):
+    print(regras_sem_cons[lin])
 
 
-regras.append(["alto", "alto", "alto", "medio", "aceita"])
-regras.append(["medio", "alto", "alto", "medio", "replica"])
-regras.append(["baixo", "alto", "alto", "medio", "rejeita"])
-regras.append(["alto", "medio", "alto", "medio", "aceita"])
-regras.append(["alto", "baixo", "alto", "medio", "rejeita"])
-regras.append(["alto", "alto", "medio", "medio", "replica"])
-regras.append(["alto", "alto", "baixo", "medio", "rejeita"])
-
-regras.append(["alto", "alto", "alto", "alto", "aceita"])
-regras.append(["medio", "alto", "alto", "alto", "replica"])
-regras.append(["baixo", "alto", "alto", "alto", "rejeita"])
-regras.append(["alto", "medio", "alto", "alto", "replica"])
-regras.append(["alto", "baixo", "alto", "alto", "rejeita"])
-regras.append(["alto", "alto", "medio", "alto", "replica"])
-regras.append(["alto", "alto", "baixo", "alto", "rejeita"])
+with open("regras1.csv", "r") as f:
+    mylist = f.read().splitlines()
+    for line in mylist:
+        regras.append(line.split(","))
 
 
 def printRegras(regras):
@@ -126,7 +92,7 @@ ENTRADASTEST = [
 print("----------")
 for entrada in ENTRADASTEST:
     saida = inferencia(entrada, regras, \
-                  PERT_FUNCTIONS, PERT_SAIDA, LING_VALUES, CLASSES, norma_t=calcula_disparo_min)
+                  PERT_FUNCTIONS, PERT_SAIDA, LING_VALUES, CLASSES, norma_t=calcula_disparo_min)[0]
     print("Entradas: ",entrada)
     print(saida)
 print("----------")
@@ -142,10 +108,29 @@ for k in range(50):
 print("----------")
 for entrada in ENTRADASTEST:
     saida = inferencia(entrada, regras, \
-                  PERT_FUNCTIONS, PERT_SAIDA, LING_VALUES, CLASSES, defuzzy=max_args, norma_t=calcula_disparo_min)
+                  PERT_FUNCTIONS, PERT_SAIDA, LING_VALUES, CLASSES,
+                    defuzzy=calcula_centroid, norma_t=calcula_disparo_min)
+    print("Entradas: ",entrada)
+    print(saida[0])
+print("----------")
+
+
+print("#### Teste com entradas dos cenários")
+
+ENTRADASTEST = []
+ENTRADASTEST.append([0.5, 0.9, 0.3, 0.6])
+ENTRADASTEST.append([0.5, 0.6, 0.8, 0.6])
+
+print("----------")
+for entrada in ENTRADASTEST:
+    saida,regrasdisp,niveis = inferencia(entrada, regras, \
+                  PERT_FUNCTIONS, PERT_SAIDA, LING_VALUES, CLASSES, defuzzy=calcula_centroid, norma_t=calcula_disparo_min)
     print("Entradas: ",entrada)
     print(saida)
+    print(regrasdisp)
+    print(niveis)
 print("----------")
+
 
 
 

@@ -80,16 +80,20 @@ def inferencia(entrada, regras, pert_functions, pert_saida, ling_values, classes
         niveis_disparo.append(nivel_disparo)
 
     maiores = [0.,0.,0.]
+    regras = [-1,-1,-1]
+    niveis = [-1,-1,-1]
     for i in range(len(combinacoes)):
         comb = combinacoes[i]
         nivel = niveis_disparo[i]
         for k in range(len(classes)):
             if comb[4] == classes[k] and nivel > maiores[k]:
                 maiores[k] = nivel
+                regras[k] = comb
+                niveis[k] = nivel
 
     saida = defuzzy(maiores, pert_saida)
 
-    return classes[saida]
+    return classes[saida], regras, niveis
 
 def matchRegras(entradas, saidas, regras, pert_functions, ling_values, classes, defuzzy=calcula_centroid, norma_t=calcula_disparo_min):
     acertos = 0
