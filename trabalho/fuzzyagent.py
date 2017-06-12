@@ -12,9 +12,9 @@ MAXVARS = [1,1,1,1]
 
 from partitiongeneric2 import *
 
-L = (0.2, 0.4)
-M = (0.3, 0.5, 0.7)
-H = (0.6, 0.8)
+L = (0.1, 0.45)
+M = (0.15, 0.5, 0.85)
+H = (0.55, 0.9)
 
 FUNC_VALUES = (L, M, H)
 
@@ -34,9 +34,9 @@ def generate_pertinence_functions(pert_functions_gens):
 
 PERT_FUNCTIONS = generate_pertinence_functions(PERT_FUNCTIONS_GENS)
 
-L = (0.2, 0.4)
-M = (0.3, 0.5, 0.7)
-H = (0.6, 0.8)
+L = (0.1, 0.45)
+M = (0.15, 0.5, 0.85)
+H = (0.55, 0.9)
 
 FUNC_VALUES_SAIDA = (L, M, H)
 
@@ -58,13 +58,13 @@ for lin in range (len(regras_sem_cons)):
     print(regras_sem_cons[lin])
 
 
-with open("regras1.csv", "r") as f:
+with open("regras2.csv", "r") as f:
     mylist = f.read().splitlines()
     for line in mylist:
         regras.append(line.split(","))
 
 
-def printRegras(regras):
+def printRe gras(regras):
     for r in regras:
         print("Se", end=" ")
         for i in range(len(INPUT_VARS)):
@@ -118,8 +118,27 @@ print("----------")
 print("#### Teste com entradas dos cenários")
 
 ENTRADASTEST = []
-ENTRADASTEST.append([0.5, 0.9, 0.3, 0.6])
-ENTRADASTEST.append([0.5, 0.6, 0.8, 0.6])
+#scenario 1
+# ENTRADASTEST.append([0.5, 0.9, 0.2, 1])
+# ENTRADASTEST.append([0.5, 0.4, 0.8, 1])
+#
+# ENTRADASTEST.append([1, 0.9, 0.2, 1])
+# ENTRADASTEST.append([1, 0.4, 0.8, 1])
+#
+# ENTRADASTEST.append([0.5, 0.9, 0.2, 0.2])
+# ENTRADASTEST.append([0.5, 0.4, 0.8, 0.2])
+#
+# ENTRADASTEST.append([1, 0.9, 0.2, 0.2])
+# ENTRADASTEST.append([1, 0.4, 0.8, 0.2])
+
+#scenario 2
+ENTRADASTEST.append([1, 0.5, 0.1, 0.5])
+ENTRADASTEST.append([1, 0.1, 0.5, 0.5])
+
+#scenario 3
+# ENTRADASTEST.append([1, 0.9, 0.5, 0.3])
+# ENTRADASTEST.append([1, 0.9, 0.9, 0.3])
+
 
 print("----------")
 for entrada in ENTRADASTEST:

@@ -52,11 +52,11 @@ medio,alto,medio,baixo,replica
 medio,alto,alto,alto,aceita
 medio,alto,alto,medio,aceita
 medio,alto,alto,baixo,replica
-alto,baixo,baixo,alto,replica
+alto,baixo,baixo,alto,aceita
 alto,baixo,baixo,medio,replica
 alto,baixo,baixo,baixo,rejeita
 alto,baixo,medio,alto,aceita
-alto,baixo,medio,medio,replica
+alto,baixo,medio,medio,aceita
 alto,baixo,medio,baixo,replica
 alto,baixo,alto,alto,aceita
 alto,baixo,alto,medio,aceita
@@ -75,7 +75,7 @@ alto,alto,baixo,medio,replica
 alto,alto,baixo,baixo,replica
 alto,alto,medio,alto,aceita
 alto,alto,medio,medio,aceita
-alto,alto,medio,baixo,replica
+alto,alto,medio,baixo,aceita
 alto,alto,alto,alto,aceita
 alto,alto,alto,medio,aceita
 alto,alto,alto,baixo,aceita
